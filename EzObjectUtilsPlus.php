@@ -1,5 +1,5 @@
 <?php
-class EzObjectUtilsPlus
+class EzObjectUtilsPlus extends EzObjectUtils
 {
     /**
      * @param array|null $data
@@ -11,7 +11,7 @@ class EzObjectUtilsPlus
         if (is_null($data)) {
             return null;
         }
-        if (!is_object($data) && !is_array($data) && !EzDataUtils::isJson($data)
+        if (!is_object($data) && !is_array($data) && !EzCheckUtils::isJson($data)
             && !is_subclass_of($className, EzSerializeDataObject::class)) {
             return null;
         }
@@ -72,7 +72,7 @@ class EzObjectUtilsPlus
                 case "LIST":
                     $list = [];
                     foreach ($dItem as $k => $item) {
-                        if (EzDataUtils::isScalar($item)) {
+                        if (EzCheckUtils::isScalar($item)) {
                             $list[$k] = $item;
                         } else {
                             $list[$k] = self::createObject($item, $propertyType);
@@ -83,7 +83,7 @@ class EzObjectUtilsPlus
                 case "MAP":
                     $map = [];
                     foreach ($dItem as $k => $item) {
-                        if (EzDataUtils::isScalar($item)) {
+                        if (EzCheckUtils::isScalar($item)) {
                             $map[$k] = $item;
                         } else {
                             $map[$k] = self::createObject($item, $propertyType[1]);
@@ -147,8 +147,8 @@ class EzObjectUtilsPlus
         if (empty($propertyTypeMatched)) {
             return [null, null];
         }
-        if (EzDataUtils::isScalarType($propertyTypeMatched)) {
-            $data = EzDataUtils::convertScalarToTrueType($data, $propertyTypeMatched);
+        if (EzCheckUtils::isScalarType($propertyTypeMatched)) {
+            $data = self::convertScalarToTrueType($data, $propertyTypeMatched);
             /*DBC::assertTrue(EzDataUtils::dataTypeNameEquals(gettype($data), $propertyTypeMatched),
                 "[EzObject] Match data Fail! Type Must Be An $propertyTypeMatched, But ".gettype($data),
                 0, GearIllegalArgumentException::class);*/
@@ -156,7 +156,7 @@ class EzObjectUtilsPlus
         }
         // 1. Array
         if ("array" == $propertyTypeMatched) {
-            DBC::assertTrue(EzDataUtils::isArray($data), "[EzObject] Match data Fail! Type Must Be An Array, But ".gettype($data),
+            DBC::assertTrue(EzCheckUtils::isArray($data), "[EzObject] Match data Fail! Type Must Be An Array, But ".gettype($data),
                 0, GearIllegalArgumentException::class);
             return ["ARRAY", "array"];
         }
@@ -167,11 +167,11 @@ class EzObjectUtilsPlus
         if (!empty($propertyType2)) {
             $newData = [];
             foreach ($data as $datak => $datav) {
-                $newData[EzDataUtils::convertScalarToTrueType($datak, $propertyType)] =
-                    EzDataUtils::convertScalarToTrueType($datav, $propertyType2);
+                $newData[self::convertScalarToTrueType($datak, $propertyType)] =
+                    self::convertScalarToTrueType($datav, $propertyType2);
             }
             $data = $newData;
-            DBC::assertTrue(EzDataUtils::isMap($data, $propertyType, $propertyType2), "[EzObject] Match data Fail! Type Must Be a Map, But ".gettype($data),
+            DBC::assertTrue(EzCheckUtils::isMap($data, $propertyType, $propertyType2), "[EzObject] Match data Fail! Type Must Be a Map, But ".gettype($data),
                 0, GearIllegalArgumentException::class);
             return ["MAP", [$propertyType, $propertyType2]];
         }
@@ -180,11 +180,11 @@ class EzObjectUtilsPlus
 
         $propertyType = $matched['propertyType'] ?? "";
         if (!empty($propertyType)) {
-            DBC::assertTrue(EzDataUtils::isList($data), "[EzObject] Match data Fail! Type Must Be a Map, But ".gettype($data),
+            DBC::assertTrue(EzCheckUtils::isList($data), "[EzObject] Match data Fail! Type Must Be a Map, But ".gettype($data),
                 0, GearIllegalArgumentException::class);
-            if (EzDataUtils::isScalarType($propertyType)) {;
+            if (EzCheckUtils::isScalarType($propertyType)) {;
                 foreach ($data as &$datum) {
-                    $datum = EzDataUtils::convertScalarToTrueType($datum, $propertyType);
+                    $datum = self::convertScalarToTrueType($datum, $propertyType);
                 }
             }
             return ["LIST", $propertyType];
@@ -231,7 +231,7 @@ class EzObjectUtilsPlus
         if (empty($obj)) {
             return null;
         }
-        $obj = EzDataUtils::ksortFromObject($obj);
+        $obj = EzCollectionUtils::ksortFromObject($obj);
         foreach ($obj as $key => $o) {
             if (is_array($o) || is_object($o)) {
                 $obj[$key] = self::identityCode($o);
