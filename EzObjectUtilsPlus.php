@@ -1,4 +1,5 @@
 <?php
+
 class EzObjectUtilsPlus extends EzObjectUtils
 {
     /**

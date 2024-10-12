@@ -1,4 +1,5 @@
 <?php
+
 class Validator extends Anno {
     public $fields = [];
 
